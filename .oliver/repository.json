@@ -2,7 +2,7 @@
   "version": "1.0",
   "projectId": "c72d2aa5-5a6d-40d0-a411-a5eebe5b309c",
   "createdAt": "2026-02-10T22:23:10.930Z",
-  "updatedAt": "2026-02-10T22:27:43.157Z",
+  "updatedAt": "2026-02-10T22:28:30.414Z",
   "files": [
     {
       "id": "d79cdebd-7fdb-43d0-b33f-7f497bb6bad1",
@@ -27,8 +27,20 @@
       "createdAt": "2026-02-10T22:27:42.936Z",
       "updatedAt": "2026-02-10T22:27:42.936Z",
       "tags": []
+    },
+    {
+      "id": "17811a8b-bc1d-4360-834f-5bf49016251f",
+      "name": "regulatory-tracker-walkthrough (1).md",
+      "path": "repository/workflow-analysis/regulatory-tracker-walkthrough (1).md",
+      "folder": "workflow-analysis",
+      "mimeType": "application/octet-stream",
+      "size": 22104,
+      "sha": "a17983605b99a455934426d866eecf5cf33196b8",
+      "createdAt": "2026-02-10T22:28:30.006Z",
+      "updatedAt": "2026-02-10T22:28:30.006Z",
+      "tags": []
     }
   ],
   "externalLinks": [],
-  "storageUsed": 538740
+  "storageUsed": 560844
 }
