@@ -1,2 +1,12 @@
 # reg-tracking
-Oliver project repository for c72d2aa5-5a6d-40d0-a411-a5eebe5b309c
+
+Oliver project repository.
+
+## Folder Structure
+
+- `repository/workflow-analysis/`
+- `repository/business-case/`
+- `repository/ai-opportunity-assessment/`
+- `repository/functional-prototype/`
+- `repository/technical-specifications/`
+- `repository/meeting-notes/`
