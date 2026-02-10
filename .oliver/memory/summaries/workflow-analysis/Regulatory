@@ -1,0 +1,33 @@
+# Regulatory Tracker - User Journey and Decision Points
+
+**Source**: repository/workflow-analysis/Regulatory Tracker - User Journey and Decision Points.md
+**Type**: Design Document
+**Upload Date**: 2026-02-10
+**Source SHA**: Not provided
+
+## Key Points
+
+- The Regulatory Tracker is an AI-powered application that automates detection, analysis, and workflow management of regulatory updates using Claude AI as a backend agent
+- User journey spans 7 phases: initial access, scan configuration, backend scan execution, results review, workflow management, knowledge store access, and documentation export
+- Scan execution involves 7 stages (initializing, retrieving sources, detecting changes, analyzing with Claude, scoring, generating artifacts, finalizing) with decision points at each stage
+- System integrates multiple backend components (ScanOrchestrator, ChangeDetectionService, LLMService, ArtifactGenerator) that coordinate regulatory analysis and artifact generation
+- Results flow through a three-stage workflow (Draft → In Review → Verified) before items are added to the knowledge store for compliance record keeping
+- Mock regulatory data sources include FinCEN amendments, SAR advisories, OCC guidance, and Federal Reserve procedures with varying impact levels
+- Claude API analyzes regulatory content for relevance, impact level (Low/Medium/High/Critical), affected compliance areas, and recommended actions with confidence scoring
+
+## Entities and Topics
+
+- **Regulatory Tracker**: AI-powered application for monitoring and analyzing regulatory changes
+- **Claude AI**: LLM used for analyzing regulatory documents and determining relevance/impact
+- **ScanOrchestrator**: Backend component coordinating multi-stage scan pipeline and state transitions
+- **ChangeDetectionService**: Service computing content hashes and detecting regulatory keywords indicating material changes
+- **LLMService**: Integration layer with Claude API for regulatory analysis
+- **ArtifactGenerator**: Component creating markdown summaries and Word documents for compliance records
+- **AML Domain**: Anti-Money Laundering regulatory focus area with sub-domains (KYC, Transaction Monitoring, SAR Filing)
+- **Workflow States**: Draft, In Review, Verified - stages for regulatory item approval
+- **Knowledge Store**: Searchable archive of verified regulatory changes with export functionality
+- **Mock Sources**: Realistic regulatory documents (FinCEN CDD Amendment, SAR Advisory, OCC Guidance, Federal Reserve Procedures)
+
+## Relevance to Project
+
+This document provides a comprehensive design specification for an AI-driven regulatory compliance automation system. It defines the complete user journey, system architecture, backend agent orchestration, and data flow—serving as a blueprint for implementation, testing, and validation of the regulatory tracking workflow across all seven user-facing phases and nine critical decision points.
