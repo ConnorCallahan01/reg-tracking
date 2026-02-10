@@ -1,0 +1,300 @@
+# Regulatory Tracker - User Journey and Decision Points
+
+## Overview
+The Regulatory Tracker is an AI-powered application that continuously monitors regulatory changes and analyzes configured data sources. The system uses a mock agentic backend powered by Claude AI to automate the detection, analysis, and workflow management of regulatory updates.
+
+## User Journey Phases
+
+### Phase 1: Initial Access & Dashboard
+**User Actions:**
+- User navigates to http://localhost:3000
+- Views dashboard with statistics and recent scans
+
+**System Display:**
+- Total scans count
+- Active results count
+- Items in workflow queue
+- Recent scan history
+
+**Decision Point:** User decides to start a new scan or review existing results
+
+---
+
+### Phase 2: Configure New Scan
+**User Actions:**
+- Clicks "New Scan" button
+- Selects scan parameters:
+  - **Domain**: AML (Anti-Money Laundering)
+  - **Jurisdiction**: United States
+  - **Sub-domains**: KYC, Transaction Monitoring, SAR Filing, etc.
+- Clicks "Start Scan"
+
+**Backend Agent Actions:**
+- Creates scan record in database
+- Initializes ScanOrchestrator
+- Launches background task for scan execution
+
+**Decision Point:** System validates parameters and begins orchestrated scan pipeline
+
+---
+
+### Phase 3: Scan Execution (Backend Agent Orchestration)
+
+#### Stage 1: Initializing
+**Agent Actions:**
+- Verifies scan record exists
+- Sets up scan context
+- Updates status to "running:initializing"
+
+#### Stage 2: Retrieving Sources
+**Agent Actions:**
+- Loads mock regulatory source files from data/mock-sources/
+- Reads JSON files containing regulatory documents:
+  - FinCEN CDD Amendment
+  - FinCEN SAR Advisory
+  - OCC Transaction Monitoring Guidance
+  - Federal Reserve AML Procedures
+- Updates status to "running:retrieving_sources"
+
+**Decision Point:** System checks if sources were found (if none, completes scan)
+
+#### Stage 3: Detecting Changes
+**Agent Actions:**
+- ChangeDetectionService analyzes each source
+- Computes content hash (SHA-256)
+- Detects regulatory keywords:
+  - "amended", "effective", "new rule", "final rule"
+  - "revised", "mandatory", "compliance deadline"
+  - "enforcement", "requirement", "shall"
+- In demo mode: Always reports material changes
+- Updates status to "running:detecting_changes"
+
+**Decision Point:** System filters sources with material changes (if none, completes scan)
+
+#### Stage 4: Analyzing (AI Processing)
+**Agent Actions:**
+- For each source with material changes:
+  - LLMService constructs analysis prompt
+  - Sends regulatory content to Claude API (claude-sonnet-4)
+  - Claude analyzes document for:
+    - Is this a regulatory change?
+    - Is it relevant to the configured domain/jurisdiction?
+    - Executive summary
+    - Change description
+    - Impact level (Low/Medium/High/Critical)
+    - Affected compliance areas
+    - Recommended actions
+    - Effective date
+    - Confidence score (0.0-1.0)
+  - Parses JSON response from Claude
+  - Creates result record in database
+- Updates status to "running:analyzing"
+
+**Decision Point:** For each source, Claude determines relevance and impact
+
+#### Stage 5: Scoring
+**Agent Actions:**
+- Normalizes confidence scores across all results
+- Flags items for human review if:
+  - Confidence score < 0.7
+  - Claude explicitly marked "requires_human_review"
+- Updates result records with final scores
+- Updates status to "running:scoring"
+
+#### Stage 6: Generating Artifacts
+**Agent Actions:**
+- ArtifactGenerator creates documents for each result:
+  - Markdown artifact (stored in database)
+  - Word document (.docx) saved to artifacts/ directory
+- Artifacts include:
+  - Executive summary
+  - Impact assessment
+  - Affected areas
+  - Recommended actions
+  - Source information and citations
+- Updates result records with artifact paths
+- Updates status to "running:generating_artifacts"
+
+#### Stage 7: Finalizing
+**Agent Actions:**
+- Completes all background tasks
+- Updates scan status to "completed"
+- Makes results available for user review
+- Updates status to "running:finalizing" then "completed"
+
+**User Notification:**
+- Dashboard updates with new scan results
+- Results page shows analysis findings
+
+---
+
+### Phase 4: Review Results
+**User Actions:**
+- Navigates to Results page
+- Views list of analysis results with:
+  - Title
+  - Source name
+  - Impact level (color-coded badge)
+  - Workflow status
+  - Confidence score
+- Clicks on a result to view details
+
+**System Display:**
+- Executive summary
+- Change description
+- Impact level with visual indicator
+- Affected compliance areas
+- Recommended actions
+- Effective date
+- Confidence score
+- Source information
+- Full markdown artifact
+
+**Decision Point:** User decides whether to move item to workflow or dismiss
+
+---
+
+### Phase 5: Workflow Management
+**User Actions:**
+- Navigates to Workflow page
+- Views items grouped by status:
+  - **Draft**: Initial state after analysis
+  - **In Review**: Under compliance team review
+  - **Verified**: Approved and added to knowledge store
+- Clicks on an item to view details
+- Adds comments to document review decisions
+- Uses transition buttons to change status:
+  - Draft → In Review
+  - In Review → Verified
+  - In Review → Draft (if needs revision)
+
+**Backend Actions:**
+- Updates workflow_status field in database
+- Tracks status transitions
+- Timestamps each transition
+
+**Decision Point:** User determines if regulatory change is verified and ready for knowledge store
+
+---
+
+### Phase 6: Knowledge Store
+**User Actions:**
+- Navigates to Knowledge Store page
+- Searches verified regulatory items by keyword
+- Filters by:
+  - Impact level
+  - Date range
+  - Domain/jurisdiction
+- Views statistics and summaries
+- Clicks on verified item to view full details
+
+**System Display:**
+- Only shows items with workflow_status = "verified"
+- Searchable archive of all approved regulatory changes
+- Export functionality for each item
+
+**Decision Point:** User decides whether to export documentation
+
+---
+
+### Phase 7: Export Documentation
+**User Actions:**
+- Clicks "Export" button on a verified item
+- Downloads professional Word document
+
+**Backend Actions:**
+- Retrieves pre-generated .docx file from artifacts/ directory
+- Serves file for download
+
+**System Output:**
+- Formatted Word document containing:
+  - Title and source information
+  - Publication and effective dates
+  - Executive summary
+  - Detailed change description
+  - Impact assessment
+  - Affected compliance areas
+  - Recommended actions
+  - Confidence score
+  - Professional formatting for compliance records
+
+---
+
+## Key Decision Points Summary
+
+1. **User Decision**: Start new scan or review existing results
+2. **System Decision**: Validate scan parameters
+3. **Agent Decision**: Determine if sources are available
+4. **Agent Decision**: Detect material changes in sources
+5. **AI Decision**: Analyze relevance and impact (Claude)
+6. **Agent Decision**: Flag items for human review based on confidence
+7. **User Decision**: Review and move items through workflow
+8. **User Decision**: Verify regulatory changes for knowledge store
+9. **User Decision**: Export documentation for compliance records
+
+## Backend Agent Components
+
+### ScanOrchestrator
+- Coordinates multi-stage scan pipeline
+- Manages state transitions
+- Handles errors and retries
+- Updates scan status in real-time
+
+### ChangeDetectionService
+- Computes content hashes
+- Detects regulatory keywords
+- Determines material changes
+- Demo mode: Always reports changes
+
+### LLMService
+- Integrates with Claude API
+- Constructs analysis prompts
+- Parses structured JSON responses
+- Handles API errors and retries
+
+### ArtifactGenerator
+- Creates markdown summaries
+- Generates Word documents
+- Formats professional compliance reports
+- Manages artifact storage
+
+## Data Flow
+
+```
+User Input (Scan Config)
+    ↓
+Backend API (FastAPI)
+    ↓
+ScanOrchestrator (Background Task)
+    ↓
+ChangeDetectionService → Mock Sources
+    ↓
+LLMService → Claude API
+    ↓
+Database (SQLite) ← Results
+    ↓
+ArtifactGenerator → Word Docs
+    ↓
+Frontend UI (Next.js) → User
+```
+
+## Mock Data Sources
+
+The demo uses realistic regulatory documents:
+
+1. **FinCEN CDD Amendment** (High Impact)
+   - Reduces beneficial ownership threshold from 25% to 10%
+   - Enhanced verification procedures
+   - FinCEN Identifier integration
+
+2. **FinCEN SAR Advisory** (Low Impact)
+   - Guidance on suspicious activity reporting
+   - Best practices for SAR filing
+
+3. **OCC Transaction Monitoring Guidance** (Medium Impact)
+   - Supervisory expectations for TM systems
+   - Risk-based monitoring requirements
+
+4. **Federal Reserve AML Procedures** (Medium Impact)
+   - Exam manual updates
+   - Compliance program expectations
